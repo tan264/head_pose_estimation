@@ -1,98 +1,105 @@
-import 'package:camera/camera.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:head_pose_estimation/complete_screen.dart';
 import 'package:logger/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-const platform = MethodChannel('processImage');
-late List<CameraDescription> _cameras;
+final logger = Logger();
 
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  _cameras = await availableCameras();
-  CameraDescription selectedCamera = _cameras.firstWhere(
-      (element) => element.lensDirection == CameraLensDirection.back);
-
-  runApp(CameraApp(
-    cameraDescription: selectedCamera,
+void main() {
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: Scaffold(
+      body: SafeArea(child: CameraPage()),
+    ),
   ));
 }
 
-class CameraApp extends StatefulWidget {
-  const CameraApp({super.key, required this.cameraDescription});
-
-  final CameraDescription cameraDescription;
+class CameraPage extends StatefulWidget {
+  const CameraPage({super.key});
 
   @override
-  State<CameraApp> createState() => _CameraAppState();
+  State createState() => _CameraPageState();
 }
 
-class _CameraAppState extends State<CameraApp> {
-  CameraController? _controller;
+class _CameraPageState extends State<CameraPage> {
+  static const cameraChannel = MethodChannel('cameraX');
+  static const stream = EventChannel('isDone');
 
-  get logger => Logger();
+  late StreamSubscription _streamSubscription;
+
+  void _startListener() {
+    _streamSubscription = stream.receiveBroadcastStream().listen(_listenStream);
+  }
+
+  void _cancelListener() {
+    _streamSubscription.cancel();
+  }
+
+  void _listenStream(value) {
+    if (value) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const CompleteScreen()));
+    }
+  }
+
+  Future<void> startCamera() async {
+    var status = await Permission.camera.status;
+    if (status.isGranted) {
+      try {
+        bool success = await cameraChannel.invokeMethod("startCamera");
+        _startListener();
+        if (success && mounted) {
+          setState(() {});
+        }
+      } catch (e) {
+        logger.d(e.toString());
+      }
+    } else {
+      var status = await Permission.camera.request();
+      if (status.isGranted) {
+        startCamera();
+      }
+    }
+  }
+
+  Future<void> stopCamera() async {
+    try {
+      _cancelListener();
+      bool success = await cameraChannel.invokeMethod("stopCamera");
+      logger.d(success);
+      if (success && mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      logger.d(e.toString());
+    }
+  }
 
   @override
   void initState() {
+    startCamera();
     super.initState();
-    _initializeCameraController(widget.cameraDescription);
   }
 
   @override
   void dispose() {
-    _controller?.dispose();
+    stopCamera();
     super.dispose();
-  }
-
-  Future<void> _initializeCameraController(
-      CameraDescription cameraDescription) async {
-    _controller = CameraController(
-      cameraDescription,
-      ResolutionPreset.medium,
-      enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.nv21,
-    );
-
-    try {
-      await _controller?.initialize().then((value) {
-        _controller?.startImageStream(_processCameraImage);
-      });
-    } on CameraException catch (e) {
-      logger.d(e.code);
-    }
-
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  Widget _cameraPreviewWidget() {
-    if (_controller == null || !_controller!.value.isInitialized) {
-      return Container();
-    } else {
-      return CameraPreview(_controller!);
-    }
-  }
-
-  void _processCameraImage(CameraImage image) {
-    final imageData = image.planes[0].bytes;
-    _sendImageToNative(imageData);
-  }
-
-  Future<void> _sendImageToNative(Uint8List imageData) async {
-    try {
-      final int result = await platform.invokeMethod('processImage', {'imageData': imageData});
-      logger.d(result);
-    } on PlatformException catch (e) {
-      logger.d(e.message);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: _cameraPreviewWidget(),
+    const String viewType = '<cameraX>';
+    final Map<String, dynamic> creationParams = <String, dynamic>{};
+
+    return AndroidView(
+      viewType: viewType,
+      creationParams: creationParams,
+      layoutDirection: TextDirection.ltr,
+      creationParamsCodec: const StandardMessageCodec(),
     );
   }
 }
