@@ -1,11 +1,12 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'camera_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
   runApp(const MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     debugShowCheckedModeBanner: false,
     home: Scaffold(
       body: HomePage(),
@@ -35,7 +36,7 @@ class HomePage extends StatelessWidget {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (_) => const CameraPage()))
                     },
-                child: const Text("Check")),
+                child: Text(AppLocalizations.of(context)!.check)),
           ],
         ),
       ),

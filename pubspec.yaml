@@ -38,6 +38,9 @@ dependencies:
   logger: ^1.4.0
   permission_handler: ^10.4.1
   flutter_svg: ^2.0.7
+  intl: ^0.18.0
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
@@ -60,6 +63,8 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  generate: true
 
   # To add assets to your application, add an assets section, like this:
   assets:

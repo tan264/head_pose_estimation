@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CompleteScreen extends StatelessWidget {
   const CompleteScreen({super.key});
@@ -15,8 +16,10 @@ class CompleteScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SvgPicture.asset(
-              "done_ring_round_svgrepo_com.svg",
+              "assets/done_ring_round_svgrepo_com.svg",
               semanticsLabel: "Face ID",
+              width: 140,
+              height: 140,
             ),
             const SizedBox(
               height: 5,
@@ -24,9 +27,9 @@ class CompleteScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () =>
                   {SystemChannels.platform.invokeMethod('SystemNavigator.pop')},
-              child: const Text(
-                "Done!",
-                style: TextStyle(fontSize: 26),
+              child: Text(
+                AppLocalizations.of(context)!.done,
+                style: const TextStyle(fontSize: 26),
               ),
             ),
           ],
