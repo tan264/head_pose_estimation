@@ -76,8 +76,18 @@ class CameraViewController(
 
     }
 
-    fun stopCamera(onStop: (result: Boolean?) -> Unit) {
-        cameraExecutor.shutdown()
-        cameraExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)
+    fun stopCamera() {
+        try {
+            if (this::faceLandmarkerHelper.isInitialized) {
+                cameraExecutor.execute {
+                    faceLandmarkerHelper.clearFaceLandmarker()
+                }
+            }
+            cameraExecutor.shutdown()
+            cameraExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)
+            Log.d("tan264", "stopped")
+        } catch (e: Exception) {
+            Log.e("tan264", e.message.toString())
+        }
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="look_straight">Look straight</string>
+    <string name="look_right">Look right</string>
+    <string name="look_left">Look left</string>
+    <string name="look_up">Look up</string>
+    <string name="look_down">Look down</string>
+    <string name="waiting_camera">Waiting for camera …</string>
+    <string name="no_face">Position your face in the oval</string>
+    <string name="face_detected">Face detected.</string>
+</resources>

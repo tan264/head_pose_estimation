@@ -38,11 +38,17 @@ class _CameraPageState extends State<CameraPage> {
     _streamSubscription.cancel();
   }
 
-  void _listenStream(value) {
-    if (value) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const CompleteScreen()));
+  void _listenStream(value) async {
+    if (value is bool && value) {
+      logger.d("done");
+      _cancelListener();
+      navigateCompleteScreen();
     }
+  }
+
+  void navigateCompleteScreen() {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (_) => const CompleteScreen()));
   }
 
   Future<void> startCamera() async {
@@ -65,19 +71,6 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
-  Future<void> stopCamera() async {
-    try {
-      _cancelListener();
-      bool success = await cameraChannel.invokeMethod("stopCamera");
-      logger.d(success);
-      if (success && mounted) {
-        setState(() {});
-      }
-    } catch (e) {
-      logger.d(e.toString());
-    }
-  }
-
   @override
   void initState() {
     startCamera();
@@ -86,7 +79,6 @@ class _CameraPageState extends State<CameraPage> {
 
   @override
   void dispose() {
-    stopCamera();
     super.dispose();
   }
 

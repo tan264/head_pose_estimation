@@ -38,13 +38,12 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Khong co mat"
+        android:text="@string/waiting_camera"
         android:textAlignment="center"
         android:textColor="#FFFFFFFF"
         android:textSize="26sp"
         app:layout_constraintBottom_toTopOf="@+id/guide_line"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="Khong co mat" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

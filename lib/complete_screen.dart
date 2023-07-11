@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CompleteScreen extends StatelessWidget {
   const CompleteScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(
-          child: Text(
-            "done",
-            style: TextStyle(fontSize: 26),
-          ),
-        ),
+            child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(
+              onPressed: () =>
+                  {SystemChannels.platform.invokeMethod('SystemNavigator.pop')},
+              child: const Text(
+                "Done!",
+                style: TextStyle(fontSize: 26),
+              ),
+            ),
+          ],
+        )),
       ),
     );
   }

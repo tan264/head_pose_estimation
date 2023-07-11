@@ -1,6 +1,11 @@
 package com.example.head_pose_estimation
 
+import android.content.Context
 import android.graphics.RectF
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.util.Log
 import android.view.View
 import android.widget.TextView
@@ -12,13 +17,14 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
-import java.util.logging.StreamHandler
 import kotlin.math.max
 
-class MainActivity : FlutterActivity(), FaceLandmarkerHelper.LandmarkerListener, EventChannel.StreamHandler {
+class MainActivity : FlutterActivity(), FaceLandmarkerHelper.LandmarkerListener,
+    EventChannel.StreamHandler {
 
     private var eventSink: EventChannel.EventSink? = null
     private var stream: EventChannel? = null
+    private lateinit var vib: Vibrator
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
         this.eventSink = events
@@ -29,6 +35,7 @@ class MainActivity : FlutterActivity(), FaceLandmarkerHelper.LandmarkerListener,
         stream = null
     }
 
+    private lateinit var cameraController: CameraViewController
     private lateinit var textView: TextView
     private lateinit var ovalView: OvalOverlayView
 
@@ -52,38 +59,46 @@ class MainActivity : FlutterActivity(), FaceLandmarkerHelper.LandmarkerListener,
                 viewHeight = ovalView.height
             )
         ) {
-            if (hasDownAngle && hasFrontAngle && hasUpAngle && hasRightAngle && hasLeftAngle) {
+            if (hasDownAngle) {
+                Log.d("tan264", "done")
                 runOnUiThread {
+                    Log.d("tan264", "close event")
                     eventSink?.success(true)
                 }
+                cameraController.stopCamera()
             }
             val yaw = resultBundle.yaw
             val pitch = resultBundle.pitch
-            if(!hasFrontAngle) {
-                setText("Nhin Thang")
+            if (!hasFrontAngle) {
+                setText(getString(R.string.look_straight))
             } else if (!hasRightAngle) {
-                setText("Nhin phai")
+                setText(getString(R.string.look_right))
             } else if (!hasLeftAngle) {
-                setText("Nhin trai")
+                setText(getString(R.string.look_left))
             } else if (!hasUpAngle) {
-                setText("Nhin len tren")
+                setText(getString(R.string.look_up))
             } else if (!hasDownAngle) {
-                setText("Nhin xuong duoi")
+                setText(getString(R.string.look_down))
             }
             if (yaw < -15 && hasRightAngle && !hasLeftAngle) {
                 hasLeftAngle = true
+                vibrate(vib)
             } else if (pitch > 15 && hasLeftAngle && !hasUpAngle) {
                 hasUpAngle = true
+                vibrate(vib)
             } else if (pitch < -10 && hasUpAngle && !hasDownAngle) {
                 hasDownAngle = true
+                vibrate(vib)
             } else if (yaw > 15 && hasFrontAngle && !hasRightAngle) {
                 hasRightAngle = true
+                vibrate(vib)
             } else if (yaw in -8.0..8.0 && pitch in -8.0..8.0 && !hasFrontAngle) {
                 hasFrontAngle = true
+                vibrate(vib)
             }
 
         } else {
-            setText("Khong co mat")
+            setText(getString(R.string.no_face))
             resetStatus()
         }
     }
@@ -103,12 +118,10 @@ class MainActivity : FlutterActivity(), FaceLandmarkerHelper.LandmarkerListener,
     }
 
     override fun onEmpty() {
-        runOnUiThread {
-            textView.setText("Dua mat vao khung")
-        }
+        setText(getString(R.string.no_face))
     }
 
-    fun isInsideTheBox(
+    private fun isInsideTheBox(
         faceLandmarks: List<NormalizedLandmark>,
         imageWidth: Int,
         imageHeight: Int,
@@ -131,9 +144,35 @@ class MainActivity : FlutterActivity(), FaceLandmarkerHelper.LandmarkerListener,
         const val STREAM = "isDone"
     }
 
+    private fun vibrate(vib: Vibrator) {
+        val duration = 5L
+        if (Build.VERSION.SDK_INT >= 26) {
+            vib.vibrate(
+                VibrationEffect.createOneShot(
+                    duration, if (Build.VERSION.SDK_INT >= 29) {
+                        VibrationEffect.EFFECT_TICK
+                    } else {
+                        VibrationEffect.DEFAULT_AMPLITUDE
+                    }
+                )
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            vib.vibrate(duration)
+        }
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val view: View = View.inflate(context, R.layout.fragment_camera, null)
+        vib = if (Build.VERSION.SDK_INT >= 31) {
+            val vibratorManager =
+                getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        }
 
         flutterEngine.platformViewsController.registry.registerViewFactory(
             "<cameraX>",
@@ -152,7 +191,7 @@ class MainActivity : FlutterActivity(), FaceLandmarkerHelper.LandmarkerListener,
         // https://stackoverflow.com/questions/72358118/unable-to-position-androidview-with-video
         cameraPreview.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
 
-        val cameraController = CameraViewController(context, this, cameraPreview, this)
+        cameraController = CameraViewController(context, this, cameraPreview, this)
         val cameraManager = CameraManager()
 
         cameraChannel.setMethodCallHandler { call, result ->
