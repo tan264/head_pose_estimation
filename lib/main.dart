@@ -1,97 +1,44 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:head_pose_estimation/complete_screen.dart';
-import 'package:logger/logger.dart';
-import 'package:permission_handler/permission_handler.dart';
-
-final logger = Logger();
+import 'package:flutter_svg/flutter_svg.dart';
+import 'camera_page.dart';
 
 void main() {
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
     home: Scaffold(
-      body: SafeArea(child: CameraPage()),
+      body: HomePage(),
     ),
   ));
 }
 
-class CameraPage extends StatefulWidget {
-  const CameraPage({super.key});
-
-  @override
-  State createState() => _CameraPageState();
-}
-
-class _CameraPageState extends State<CameraPage> {
-  static const cameraChannel = MethodChannel('cameraX');
-  static const stream = EventChannel('isDone');
-
-  late StreamSubscription _streamSubscription;
-
-  void _startListener() {
-    _streamSubscription = stream.receiveBroadcastStream().listen(_listenStream);
-  }
-
-  void _cancelListener() {
-    _streamSubscription.cancel();
-  }
-
-  void _listenStream(value) async {
-    if (value is bool && value) {
-      logger.d("done");
-      _cancelListener();
-      navigateCompleteScreen();
-    }
-  }
-
-  void navigateCompleteScreen() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (_) => const CompleteScreen()));
-  }
-
-  Future<void> startCamera() async {
-    var status = await Permission.camera.status;
-    if (status.isGranted) {
-      try {
-        bool success = await cameraChannel.invokeMethod("startCamera");
-        _startListener();
-        if (success && mounted) {
-          setState(() {});
-        }
-      } catch (e) {
-        logger.d(e.toString());
-      }
-    } else {
-      var status = await Permission.camera.request();
-      if (status.isGranted) {
-        startCamera();
-      }
-    }
-  }
-
-  @override
-  void initState() {
-    startCamera();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const String viewType = '<cameraX>';
-    final Map<String, dynamic> creationParams = <String, dynamic>{};
-
-    return AndroidView(
-      viewType: viewType,
-      creationParams: creationParams,
-      layoutDirection: TextDirection.ltr,
-      creationParamsCodec: const StandardMessageCodec(),
+    return SafeArea(
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
+              "assets/face_id_seeklogo_com.svg",
+              semanticsLabel: "Face ID",
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            ElevatedButton(
+                onPressed: () => {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const CameraPage()))
+                    },
+                child: const Text("Check")),
+          ],
+        ),
+      ),
     );
   }
 }

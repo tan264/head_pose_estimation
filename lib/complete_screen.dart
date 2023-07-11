@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 
 class CompleteScreen extends StatelessWidget {
   const CompleteScreen({super.key});
@@ -13,6 +14,13 @@ class CompleteScreen extends StatelessWidget {
             child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            SvgPicture.asset(
+              "done_ring_round_svgrepo_com.svg",
+              semanticsLabel: "Face ID",
+            ),
+            const SizedBox(
+              height: 5,
+            ),
             ElevatedButton(
               onPressed: () =>
                   {SystemChannels.platform.invokeMethod('SystemNavigator.pop')},
