@@ -6,6 +6,7 @@ import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'complete_screen.dart';
+
 final _logger = Logger();
 
 class CameraPage extends StatefulWidget {
@@ -62,6 +63,15 @@ class _CameraPageState extends State<CameraPage> {
     }
   }
 
+  Future<void> stopCamera() async {
+    bool success = await cameraChannel.invokeMethod("stopCamera");
+    if (success) {
+      _logger.d("stop camera success");
+    } else {
+      _logger.d("stop camera failed");
+    }
+  }
+
   @override
   void initState() {
     startCamera();
@@ -70,6 +80,7 @@ class _CameraPageState extends State<CameraPage> {
 
   @override
   void dispose() {
+    stopCamera();
     super.dispose();
   }
 
@@ -78,11 +89,13 @@ class _CameraPageState extends State<CameraPage> {
     const String viewType = '<cameraX>';
     final Map<String, dynamic> creationParams = <String, dynamic>{};
 
-    return AndroidView(
-      viewType: viewType,
-      creationParams: creationParams,
-      layoutDirection: TextDirection.ltr,
-      creationParamsCodec: const StandardMessageCodec(),
+    return SafeArea(
+      child: AndroidView(
+        viewType: viewType,
+        creationParams: creationParams,
+        layoutDirection: TextDirection.ltr,
+        creationParamsCodec: const StandardMessageCodec(),
+      ),
     );
   }
 }

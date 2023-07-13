@@ -16,6 +16,6 @@ class CameraViewFactory(view: View) : PlatformViewFactory(StandardMessageCodec.I
 
     override fun create(context: Context?, viewId: Int, args: Any?): PlatformView {
         val creationParams = args as Map<String?, Any?>?
-        return CameraView(context!!, viewId, creationParams, cameraView!!)
+        return CameraView(context!!, viewId, creationParams, cameraView!!,)
     }
 }

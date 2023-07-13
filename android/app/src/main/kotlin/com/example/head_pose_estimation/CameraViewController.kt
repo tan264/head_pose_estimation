@@ -76,18 +76,22 @@ class CameraViewController(
 
     }
 
-    fun stopCamera() {
+    fun stopCamera(onStop: (result: Boolean?) -> Unit) {
         try {
-            if (this::faceLandmarkerHelper.isInitialized) {
-                cameraExecutor.execute {
-                    faceLandmarkerHelper.clearFaceLandmarker()
-                }
+            if(this::faceLandmarkerHelper.isInitialized) {
+                cameraExecutor.execute { faceLandmarkerHelper.clearFaceLandmarker() }
             }
             cameraExecutor.shutdown()
             cameraExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)
-            Log.d("tan264", "stopped")
+            Log.d(TAG, "stopped")
+            onStop.invoke(true)
         } catch (e: Exception) {
-            Log.e("tan264", e.message.toString())
+            onStop.invoke(false)
+            Log.d(TAG, e.message.toString())
         }
+    }
+
+    companion object {
+        const val TAG = "CameraViewController"
     }
 }

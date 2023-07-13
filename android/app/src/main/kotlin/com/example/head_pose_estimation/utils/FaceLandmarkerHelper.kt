@@ -143,7 +143,6 @@ class FaceLandmarkerHelper(
     // Runs face detection on live streaming cameras frame-by-frame and returns the results
     // asynchronously to the caller.
     fun detectLivestreamFrame(imageProxy: ImageProxy) {
-        //TODO: chuyen bytearray ve mpimage
 //        if (runningMode != RunningMode.LIVE_STREAM) {
 //            throw IllegalArgumentException(
 //                "Attempting to call detectLivestreamFrame" +

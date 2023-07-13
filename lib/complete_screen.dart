@@ -8,32 +8,33 @@ class CompleteScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return SafeArea(
+      child: Scaffold(
         body: Center(
-            child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(
-              "assets/done_ring_round_svgrepo_com.svg",
-              semanticsLabel: "Face ID",
-              width: 140,
-              height: 140,
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            ElevatedButton(
-              onPressed: () =>
-                  {SystemChannels.platform.invokeMethod('SystemNavigator.pop')},
-              child: Text(
-                AppLocalizations.of(context)!.done,
-                style: const TextStyle(fontSize: 26),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                "assets/done_ring_round_svgrepo_com.svg",
+                semanticsLabel: "Face ID",
+                width: 140,
+                height: 140,
               ),
-            ),
-          ],
-        )),
+              const SizedBox(
+                height: 5,
+              ),
+              ElevatedButton(
+                onPressed: () => {
+                  SystemChannels.platform.invokeMethod('SystemNavigator.pop')
+                },
+                child: Text(
+                  AppLocalizations.of(context)!.done,
+                  style: const TextStyle(fontSize: 26),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -13,11 +13,11 @@ class CameraManager {
                 }
             }
 
-//            call.method.equals("stopCamera") -> {
-//                controller.stopCamera { stopped ->
-//                    result.success(stopped)
-//                }
-//            }
+            call.method.equals("stopCamera") -> {
+                controller.stopCamera { stopped ->
+                    result.success(stopped)
+                }
+            }
         }
     }
 }

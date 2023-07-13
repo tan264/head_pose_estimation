@@ -59,14 +59,6 @@ class MainActivity : FlutterActivity(), FaceLandmarkerHelper.LandmarkerListener,
                 viewHeight = ovalView.height
             )
         ) {
-            if (hasDownAngle) {
-                Log.d("tan264", "done")
-                runOnUiThread {
-                    Log.d("tan264", "close event")
-                    eventSink?.success(true)
-                }
-                cameraController.stopCamera()
-            }
             val yaw = resultBundle.yaw
             val pitch = resultBundle.pitch
             if (!hasFrontAngle) {
@@ -89,6 +81,10 @@ class MainActivity : FlutterActivity(), FaceLandmarkerHelper.LandmarkerListener,
             } else if (pitch < -10 && hasUpAngle && !hasDownAngle) {
                 hasDownAngle = true
                 vibrate(vib)
+                Log.d(TAG, "done")
+                runOnUiThread {
+                    eventSink?.success(true)
+                }
             } else if (yaw > 15 && hasFrontAngle && !hasRightAngle) {
                 hasRightAngle = true
                 vibrate(vib)
@@ -137,11 +133,6 @@ class MainActivity : FlutterActivity(), FaceLandmarkerHelper.LandmarkerListener,
             faceLandmarks[454].x() * imageWidth * scaleFactor,
             faceLandmarks[200].y() * imageHeight * scaleFactor
         )
-    }
-
-    companion object {
-        const val CHANNEL = "cameraX"
-        const val STREAM = "isDone"
     }
 
     private fun vibrate(vib: Vibrator) {
@@ -201,5 +192,11 @@ class MainActivity : FlutterActivity(), FaceLandmarkerHelper.LandmarkerListener,
                 cameraController
             )
         }
+    }
+
+    companion object {
+        const val CHANNEL = "cameraX"
+        const val STREAM = "isDone"
+        const val TAG = "MainActivity"
     }
 }

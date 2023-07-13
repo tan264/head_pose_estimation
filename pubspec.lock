@@ -96,6 +96,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fps_widget:
+    dependency: "direct main"
+    description:
+      name: fps_widget
+      sha256: ca62e76a24062157bccaea5d1561bdee3ef2bb109d68401626d8a9d6aaa52d52
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1+2"
   intl:
     dependency: "direct main"
     description:

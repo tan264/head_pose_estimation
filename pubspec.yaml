@@ -41,6 +41,7 @@ dependencies:
   intl: ^0.18.0
   flutter_localizations:
     sdk: flutter
+  fps_widget: ^1.0.1+2
 
 dev_dependencies:
   flutter_test:
